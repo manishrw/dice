@@ -2289,6 +2289,21 @@ func BenchmarkEvalHSET(b *testing.B) {
 	}
 }
 
+func BenchmarkEvalHDEL(b *testing.B) {
+	store := dstore.NewStore(nil)
+
+	// Setup the key with multiple fields
+	key := "KEY"
+	for i := 0; i < 1000; i++ {
+		evalHSET([]string{key, fmt.Sprintf("FIELD_%d", i), fmt.Sprintf("VALUE_%d", i)}, store)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		evalHDEL([]string{key, fmt.Sprintf("FIELD_%d", i%1000)}, store)
+	}
+}
+
 func testEvalHSET(t *testing.T, store *dstore.Store) {
 	tests := map[string]evalTestCase{
 		"wrong number of args passed": {
